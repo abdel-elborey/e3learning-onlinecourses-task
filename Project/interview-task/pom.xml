@@ -16,6 +16,9 @@
 		<jstl-version>1.2</jstl-version>
 		<hibernate-validator-version>4.3.1.Final</hibernate-validator-version>
 		<hibernate-entitymanager-version>4.1.9.Final</hibernate-entitymanager-version>
+		<json-version>20140107</json-version>
+		<jackson-version>1.9.13</jackson-version>
+		<log4J-version>1.2.16</log4J-version>
 	</properties>
 
 	<dependencyManagement>
@@ -71,6 +74,7 @@
 			<artifactId>spring-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
@@ -102,7 +106,28 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jackson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
 			<version>1.9.13</version>
+		</dependency>
+
+	<!-- 	<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${json-version}</version>
+		</dependency>  -->
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.8</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4J</artifactId>
+			<version>${log4J-version}</version>
 		</dependency>
 	</dependencies>
 	<build>

@@ -11,4 +11,5 @@ import com.e3learning.onlineeducation.model.Account;
 public interface AccountRepository extends JpaRepository<Account, Long> {	
 	    Page<Account> findByFirstNameLike(String firstName, Pageable pageable);
 	    Page<Account> findByLastNameLike(String lastName, Pageable pageable);
+	    Page<Account> findByFirstNameAndLastName(String firstName, String lastName, Pageable pageable);
 }

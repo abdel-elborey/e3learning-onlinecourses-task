@@ -13,10 +13,14 @@ public interface AccountService {
 	Page<Account> findByFirstNameLike(String name, int page, int size);
 
 	Page<Account> findByLastNameLike(String name, int page, int size);
+	
+	Page<Account> findByFirstNameAndLastName(String firstName, String lastName, int page, int size);
 
 	Account findById(Long id);
 
 	Account update(Account account);
 
 	void deleteById(Long id);
+
+	Page<Account> searchAccounts(String firstName, String lastName);
 }

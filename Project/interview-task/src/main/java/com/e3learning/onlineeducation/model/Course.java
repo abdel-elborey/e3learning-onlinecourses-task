@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Length.List;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -45,6 +46,7 @@ public class Course implements Serializable {
 	@NotEmpty
 	private String title;
 	
+	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade=CascadeType.ALL)
 	private java.util.List<Training> training = new ArrayList<Training>(0);
 

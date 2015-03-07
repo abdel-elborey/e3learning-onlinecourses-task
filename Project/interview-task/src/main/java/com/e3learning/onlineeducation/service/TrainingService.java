@@ -12,7 +12,7 @@ public interface TrainingService {
 	Page<Training> findAll(int i, int j);
 
 	Page<Training> findByAccount(Account account, int page, int size);
-
+	
 	Training findById(TrainingPK trainingPK);
 
 	// This method can be called when training is finished to set the training
@@ -20,4 +20,5 @@ public interface TrainingService {
 	Training update(Training training);
 
 	void deleteById(TrainingPK trainingPK);
+	
 }

@@ -1,5 +1,7 @@
 package com.e3learning.onlineeducation.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -7,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.e3learning.onlineeducation.model.Account;
 import com.e3learning.onlineeducation.model.Course;
 import com.e3learning.onlineeducation.repository.CourseRepository;
 import com.e3learning.onlineeducation.service.CourseService;
@@ -34,6 +37,12 @@ public class CourseServiceImpl implements CourseService {
 		Pageable pageable = new PageRequest(page, size);
         String q = "%" + title + "%";
         Page<Course> courses = courseRepository.findByTitleLike(q, pageable);
+        return courses;
+	}
+	
+	@Transactional(readOnly = true)
+	public List<Course> findEligibleForAccount(Account account) { 
+        List <Course> courses = courseRepository.findEligibleForAccount(account.getId());
         return courses;
 	}
 

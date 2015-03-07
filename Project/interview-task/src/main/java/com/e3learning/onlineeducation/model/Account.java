@@ -24,6 +24,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Length.List;
@@ -59,11 +60,13 @@ public class Account implements Serializable{
 	@Enumerated(EnumType.ORDINAL)
 	private AccountStatus status = AccountStatus.NONACTIVE;
 	
+	@JsonIgnore
 	@NotNull
 	@OneToOne
 	@JoinColumn(name="address_id")
 	private Address address;
 	
+	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
 	private java.util.List<Training> training = new ArrayList<Training>(0);
 
