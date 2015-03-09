@@ -142,6 +142,7 @@ public class AccountController {
 				}
 			}
 			accountService.saveAccount(account);
+			model.addAttribute("message", "Account was Created Successfully");
 		}
 		return retunPage;
 	}

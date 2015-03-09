@@ -8,9 +8,17 @@
 
 <link rel="stylesheet" type="text/css" href="css/ng-grid.css" />
 <script src="js/jquery.js"></script>
+<script src="js/jquery-ui.min.js"></script>
 <script src="js/angular.min.js"></script>
 <script type="text/javascript" src="js/ng-grid.debug.js"></script>
 <link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css" />
+
+<script>
+	$(function() {
+		$("#accordion").accordion();
+	});
+</script>
 
   <script type="text/javascript">
 
@@ -143,16 +151,37 @@
 
 <body data-ng-controller="MyController" style="overflow: auto;">
 
-	<div class='tab'>
+<table>
+		<tr>
+			<td><table>
+					<tr>
+						<td height="100">&nbsp;</td>
+					</tr>
+					<tr>
+						<td>
+							<div id="accordion">
+								<h2>Accounts</h2>
+								<div>
+									<h3><a href="accounts"> Create New Account </a></h3>
+									<h3><a href="searchAccounts"> Search Accounts </a></h3>
+								</div>
+								<h2>Courses</h2>
+								<div>
+									<h3><a href="courses"> Create New Course </a></h3>
+								</div>
+								
+							</div>
+						</td>
+					</tr>
+				</table></td>
+			<td width="80%">
+				<div class='tab'>
 	
 		<div class="searchBoxStyle">
 			<b>First Name</b> <input type="text" id="firstName" data-ng-model="firstName" /> 
 			<b>Last Name</b> <input type="text"	 id="lastName" data-ng-model="lastName" /> 
 			<input type="button"ng-click="populateGridData();" value="search" /> <br>
-			<p>
-				<b>Filter Columns: </b><input type="text"
-					data-ng-model="filterOptions.filterText" />
-			</p>
+			
 		</div>
 
 		<div class="filler"></div>
@@ -188,6 +217,10 @@
 		</div>  
 	
 	</div>
+			</td>
+		</tr>
+	</table>
+	
 	
 </body>
 

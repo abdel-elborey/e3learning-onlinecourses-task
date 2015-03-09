@@ -45,13 +45,14 @@ public class CourseController {
 	}
 	
 	@RequestMapping(value = "/courses" , method=RequestMethod.POST)
-	public String addAccount(@Valid @ModelAttribute Course course, BindingResult result){
+	public String addAccount(Model model,@Valid @ModelAttribute Course course, BindingResult result){
 
 		String retunPage = "index";
 		if(result.hasErrors()){
 			retunPage = "add_course";			
 		}else{
 			courseService.saveCourse(course);
+			model.addAttribute("message", "Course was Created Successfully");
 		}
 		return retunPage;
 	}

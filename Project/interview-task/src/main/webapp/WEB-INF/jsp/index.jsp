@@ -20,9 +20,11 @@
 <body>
 	<table>
 		<tr>
-			<td><table>
-					<tr />
-					<tr />
+			<td>
+			<table>
+					<tr>
+						<td height="100">&nbsp;</td>
+					</tr>
 					<tr>
 						<td>
 							<div id="accordion">
@@ -42,6 +44,7 @@
 				</table></td>
 			<td width="70%">
 				<h2>Welcome to MyEducation Online training provider</h2>
+				<p>${message}</p>
 			</td>
 		</tr>
 	</table>
