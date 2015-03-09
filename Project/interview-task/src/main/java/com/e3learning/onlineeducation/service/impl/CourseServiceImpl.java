@@ -26,9 +26,8 @@ public class CourseServiceImpl implements CourseService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<Course> findAll(int page, int size) {
-		Pageable pageable = new PageRequest(page, size);
-		Page<Course> courses = courseRepository.findAll(pageable);
+	public List<Course> findAll() {
+		List<Course> courses = courseRepository.findAll();
 		return courses;
 	}
 

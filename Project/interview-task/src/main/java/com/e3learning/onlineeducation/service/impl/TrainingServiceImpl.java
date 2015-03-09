@@ -1,5 +1,7 @@
 package com.e3learning.onlineeducation.service.impl;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.e3learning.onlineeducation.model.Account;
+import com.e3learning.onlineeducation.model.Course;
 import com.e3learning.onlineeducation.model.Training;
 import com.e3learning.onlineeducation.model.TrainingPK;
 import com.e3learning.onlineeducation.repository.TrainingRepository;
@@ -56,6 +59,27 @@ public class TrainingServiceImpl implements TrainingService {
 	public void deleteById(TrainingPK trainingPK) {
 		trainingRepository.delete(trainingPK);
 		
+	}
+
+	@Override
+	@Transactional
+	public Training enrollAccountInCourse(Account account, Course course, Date startDate) {
+		Training training = new Training();
+		training.setAccount(account); 
+		training.setCourse(course);
+		training.setStartDate(startDate);
+		
+		return saveTraining(training);
+
+	}
+
+	@Override
+	public Training finishTraining(TrainingPK trainingPK, Date endDate, Integer grade) {
+		Training training = findById(trainingPK);
+		training.setEndDate(endDate);
+		training.setGrade(grade);
+		training = update(training);
+		return training;
 	}
 
 }

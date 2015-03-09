@@ -1,9 +1,5 @@
 package com.e3learning.onlineeducation.service.impl;
 
-import java.util.List;
-
-import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +11,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.e3learning.onlineeducation.IntegrationTest;
-import com.e3learning.onlineeducation.model.Account;
-import com.e3learning.onlineeducation.model.Course;
 import com.e3learning.onlineeducation.repository.AccountRepository;
 import com.e3learning.onlineeducation.service.AccountService;
 import com.e3learning.onlineeducation.service.CountryService;

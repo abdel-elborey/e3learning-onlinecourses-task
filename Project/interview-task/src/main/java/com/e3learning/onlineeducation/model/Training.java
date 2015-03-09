@@ -19,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class Training implements Serializable {
@@ -42,6 +43,7 @@ public class Training implements Serializable {
     @ManyToOne
 	private Account account;
 
+	@NotNull
 	@Temporal(TemporalType.DATE)
 	private Date startDate;
 
@@ -116,5 +118,4 @@ public class Training implements Serializable {
 	public int hashCode() {
 		return (getTrainingPK() != null ? getTrainingPK().hashCode() : 0);
 	}
-
 }

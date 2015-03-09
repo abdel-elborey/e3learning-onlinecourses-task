@@ -18,45 +18,31 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Length.List;
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "addresses")
-public class Address implements Serializable{
- 
-	/**
-	 * 
-	 */
+public class Address implements Serializable {
+
 	private static final long serialVersionUID = 8336856096536422928L;
-
-
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false)
 	private Long id;
 
-	@List({ @Length(min = 1, message = "The field must be at least 1 characters"),
-			@Length(max = 255, message = "The field must be less than 255 characters") })
-	@NotEmpty
+	@Size(min = 2, max = 255)
 	private String streetName;
-	
-	@List({ @Length(min = 1, message = "The field must be at least 1 characters"),
-			@Length(max = 255, message = "The field must be less than 255 characters") })
-	@NotEmpty	
+
+	@Size(min = 2, max = 255)
 	private String suburb;
 
-	@List({ @Length(min = 1, message = "The field must be at least 1 characters"),
-			@Length(max = 255, message = "The field must be less than 255 characters") })
-	@NotEmpty
-	private String State;
-	
+	@Size(min = 2, max = 255)
+	private String state;
+
 	@NotNull
 	@ManyToOne
-	@JoinColumn(name="country_id")
+	@JoinColumn(name = "country_id")
 	private Country country;
 
 	public Long getId() {
@@ -84,11 +70,11 @@ public class Address implements Serializable{
 	}
 
 	public String getState() {
-		return State;
+		return state;
 	}
 
 	public void setState(String state) {
-		State = state;
+		this.state = state;
 	}
 
 	public Country getCountry() {
@@ -99,5 +85,4 @@ public class Address implements Serializable{
 		this.country = country;
 	}
 
-	
 }

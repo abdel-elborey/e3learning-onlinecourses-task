@@ -1,26 +1,33 @@
 package com.e3learning.onlineeducation.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.beans.propertyeditors.CustomCollectionEditor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.e3learning.onlineeducation.model.Account;
-import com.e3learning.onlineeducation.model.AccountStatus;
-import com.e3learning.onlineeducation.model.Address;
-import com.e3learning.onlineeducation.model.Country;
 import com.e3learning.onlineeducation.model.Course;
 import com.e3learning.onlineeducation.model.Training;
+import com.e3learning.onlineeducation.model.TrainingPK;
 import com.e3learning.onlineeducation.service.AccountService;
 import com.e3learning.onlineeducation.service.CountryService;
 import com.e3learning.onlineeducation.service.CourseService;
@@ -42,77 +49,101 @@ public class AccountController {
 	@Autowired
 	private TrainingService trainingService;
 	
+	private Map<String, Training> trainingCache;
 	
-	@RequestMapping(value = "/gotoSearch")
+	@RequestMapping(value = "/", method=RequestMethod.GET)
+	public String gotoHome() {
+		return "index";		
+	}
+	
+	@RequestMapping(value = "/searchAccounts", method=RequestMethod.GET)
 	public String gotoSearch() {
-		logger.info("gotoSearch is called");
 		return "search_accounts";		
 	}
-	
-	@RequestMapping(value = "/searchAccounts")
+		
+	@RequestMapping(value = "/searchAccounts", method=RequestMethod.POST)
 	public @ResponseBody List<Account> searchAccounts(@RequestBody AccountSearchForm accountSearch) {
-		System.out.println("searchAccounts is called with parameters " + accountSearch.getFirstName() + " and " + accountSearch.getLastName());
-		Page<Account> accounts = accountService.searchAccounts(accountSearch.getFirstName(), accountSearch.getLastName());
-		logger.info("searchAccounts result is " + accounts.getContent());
-		return accounts.getContent();		
+		List<Account> accounts = accountService.searchAccounts(accountSearch);
+		logger.info("searchAccounts result is " + accounts);
+		return accounts;		
 	}
 	
 	
-	@RequestMapping(value = "/getMyCourses/{accountId}")
+	@RequestMapping(value = "/getMyCourses/{accountId}", method=RequestMethod.GET)
 	public @ResponseBody List<Training> getMyCourses(@PathVariable String accountId) {	
-		System.out.println("getting my courses for account id " + accountId);
 		Account account = new Account();
 		account.setId(Long.valueOf(accountId));
 		List<Training> trainings = trainingService.findByAccount(account, 0, 10).getContent();
-		System.out.println("eligible courses list size is " + trainings.size());
 		return trainings;
 	}
 	
 
-	@RequestMapping(value = "/enrollUserInCourse")
-	public @ResponseBody Training enrolUserInCourse(@RequestBody EnrollInCourseForm enrollInCourseForm) {
-		Training training = new Training();
+	@RequestMapping(value = "/enrollUserInCourse" , method=RequestMethod.POST)
+	public @ResponseBody Training enrolUserInCourse(@RequestBody EnrollInCourseForm enrollInCourseForm) {		
 		Account account = accountService.findById(enrollInCourseForm.getAccountId());
-		Course course = courseService.findById(enrollInCourseForm.getCourseId());
-		training.setAccount(account); 
-		training.setCourse(course);
-		training.setStartDate(new Date());
-		training = trainingService.saveTraining(training);
-		return training;
+		Course course = courseService.findById(enrollInCourseForm.getCourseId());			
+		return trainingService.enrollAccountInCourse(account, course, new Date());
 	}
-	 
-	@RequestMapping(value="addAccount")
-	public String addAccount(HttpServletRequest request, HttpServletResponse response){
+	
+	@RequestMapping(value = "/accounts" , method=RequestMethod.GET)
+	public String addAccountForm(Model model, HttpServletRequest request) {
+		Account account = new Account();
+		model.addAttribute("account", account);
+		
+		List<Course> courses = courseService.findAll();
+		List<Training> availableTraining = new ArrayList<Training>();
+		trainingCache = new HashMap<String,Training>();
+		for(Course course : courses){
+			Training training = new Training();
+			TrainingPK trainingPK = new TrainingPK();
+			trainingPK.setCourseId(course.getId());
+			training.setCourse(course);
+			training.setTrainingPK(trainingPK);
+			availableTraining.add(training);
+			trainingCache.put(training.getCourse().getId().toString(), training);
+		}
+		request.getSession().setAttribute("availableTraining", availableTraining);
+		
+		if(request.getSession().getAttribute("countries") == null)
+			request.getSession().setAttribute("countries", countryService.findAll());
+		
+		return "add_account";		
+	}
+	
+	@InitBinder
+    public void initBinder(WebDataBinder binder) {
+     binder.registerCustomEditor(List.class, "training", new CustomCollectionEditor(List.class) {
 
-		Course course = new Course();
-		course.setTitle("Object Oriented Programming in C++");
-		course = courseService.saveCourse(course);
-		
-		Country country = countryService.findAll().get(0);
-		
-		Address address = new Address();
-		address.setCountry(country);
-		address.setState("VIC");
-		address.setStreetName("Roden St");
-		address.setSuburb("West Melbourne");
-		
-		Account account = new Account();		
-		account.setEmail("abdo@yata7adaRambo.com"); 
-		account.setFirstName("Abdelrahman");
-		account.setLastName("Elborey");
-		account.setStatus(AccountStatus.ACTIVE);
-		account.setAddress(address);		
-		account = accountService.saveAccount(account);
-		
-		Training training  = new Training();
-		training.setAccount(account);
-		training.setCourse(course);
-		training.setStartDate(new java.util.Date());
-		
-		training = trainingService.saveTraining(training);
-		//System.out.println(countryService.findAll().get(0).getName());
+            protected Object convertElement(Object element) {
+                if (element instanceof Training) {
+                	return (Training) element;
+                } if(element instanceof String){
+                	Training training = trainingCache.get(element);                
+                	return training;
+                } 
+                return null;
+            }
 
-		return "result";
+        });
+	}
+ 
+	@RequestMapping(value = "/accounts" , method=RequestMethod.POST)
+	public String addAccount(Model model,@Valid @ModelAttribute Account account, BindingResult result){
+
+		String retunPage = "index";
+		if(result.hasErrors()){	
+			retunPage = "add_account";
+		}else{
+			if(account.getTraining() != null){
+				for (Training training : account.getTraining()) {
+					Course course = courseService.findById(training.getCourse().getId());
+					training.setStartDate(new Date());
+					training.setCourse(course);
+				}
+			}
+			accountService.saveAccount(account);
+		}
+		return retunPage;
 	}
 
 }

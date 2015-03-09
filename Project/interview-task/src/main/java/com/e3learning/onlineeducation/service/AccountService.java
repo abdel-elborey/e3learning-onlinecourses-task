@@ -1,20 +1,21 @@
 package com.e3learning.onlineeducation.service;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
 
 import com.e3learning.onlineeducation.model.Account;
+import com.e3learning.onlineeducation.vo.AccountSearchForm;
 
 public interface AccountService {
 
 	Account saveAccount(Account account);
 
-	Page<Account> findAll(int page, int size);
+	List<Account> findAll();
 
-	Page<Account> findByFirstNameLike(String name, int page, int size);
+	List<Account> findByFirstNameLike(String name);
 
-	Page<Account> findByLastNameLike(String name, int page, int size);
+	List<Account> findByLastNameLike(String name);
 	
-	Page<Account> findByFirstNameAndLastName(String firstName, String lastName, int page, int size);
+	List<Account> findByFirstNameAndLastName(String firstName, String lastName);
 
 	Account findById(Long id);
 
@@ -22,5 +23,5 @@ public interface AccountService {
 
 	void deleteById(Long id);
 
-	Page<Account> searchAccounts(String firstName, String lastName);
+	List<Account> searchAccounts(AccountSearchForm accountSearchVO);
 }

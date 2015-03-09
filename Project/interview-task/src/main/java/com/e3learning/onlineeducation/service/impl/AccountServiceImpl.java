@@ -1,18 +1,18 @@
 package com.e3learning.onlineeducation.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.e3learning.onlineeducation.model.Account;
+import com.e3learning.onlineeducation.model.Training;
 import com.e3learning.onlineeducation.repository.AccountRepository;
 import com.e3learning.onlineeducation.repository.AddressRepository;
 import com.e3learning.onlineeducation.service.AccountService;
+import com.e3learning.onlineeducation.service.TrainingService;
+import com.e3learning.onlineeducation.vo.AccountSearchForm;
 
 @Service("accountService")
 public class AccountServiceImpl implements AccountService {
@@ -22,37 +22,44 @@ public class AccountServiceImpl implements AccountService {
 
 	@Autowired
 	private AddressRepository addressRepository;
+	
+	@Autowired
+	private TrainingService trainingService;
 
 	@Override
 	@Transactional
 	public Account saveAccount(Account account) {
 		account.setAddress(addressRepository.save(account.getAddress()));
-		return accountRepository.save(account);
+		account = accountRepository.save(account);
+		if (account.getTraining() != null) {
+			for (Training training : account.getTraining()) {
+				training.setAccount(account);
+				trainingService.saveTraining(training);
+			}
+		}
+		return account;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Account> findAll(int page, int size) {
-		Pageable pageable = new PageRequest(page, size, new Sort(Direction.DESC, "id"));
-		Page<Account> accounts = accountRepository.findAll(pageable);
+	public List<Account> findAll() {
+		List<Account> accounts = accountRepository.findAll();
 		return accounts;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Account> findByFirstNameLike(String name, int page, int size) {
-		Pageable pageable = new PageRequest(page, size, new Sort(Direction.DESC, "id"));
-		String q = "%" + name + "%";
-		Page<Account> accounts = accountRepository.findByFirstNameLike(q, pageable);
+	public List<Account> findByFirstNameLike(String name) {
+		name = "%" + name + "%";
+		List<Account> accounts = accountRepository.findByFirstNameLike(name);
 		return accounts;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Account> findByLastNameLike(String name, int page, int size) {
-		Pageable pageable = new PageRequest(page, size, new Sort(Direction.DESC, "id"));
-		String q = "%" + name + "%";
-		Page<Account> accounts = accountRepository.findByLastNameLike(q, pageable);
+	public List<Account> findByLastNameLike(String name) {
+		name = "%" + name + "%";
+		List<Account> accounts = accountRepository.findByLastNameLike(name);
 		return accounts;
 	}
 
@@ -77,27 +84,27 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Account> findByFirstNameAndLastName(String firstName, String lastName, int page, int size) {
-		Pageable pageable = new PageRequest(page, size, new Sort(Direction.DESC, "id"));
+	public List<Account> findByFirstNameAndLastName(String firstName, String lastName) {
 		firstName = "%" + firstName + "%";
 		lastName = "%" + lastName + "%";
-		Page<Account> accounts = accountRepository.findByFirstNameAndLastName(firstName, lastName, pageable);
+		List<Account> accounts = accountRepository.findByFirstNameAndLastNameLike(firstName, lastName);
 		return accounts;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Account> searchAccounts(String firstName, String lastName) {
+	public List<Account> searchAccounts(AccountSearchForm accountSearchVO) {
+		String firstName = accountSearchVO.getFirstName();
+		String lastName = accountSearchVO.getLastName();
+		
 		if (firstName != null && firstName.trim().length() > 0 && lastName != null && lastName.trim().length() > 0) {
-			return findByFirstNameAndLastName(firstName, lastName, 0, 10);
+			return findByFirstNameAndLastName(firstName, lastName);
 		} else if (firstName != null && firstName.trim().length() > 0) {
-			return findByFirstNameLike(firstName, 0, 10);
+			return findByFirstNameLike(firstName);
 		} else if (lastName != null && lastName.trim().length() > 0) {
-			return findByLastNameLike(lastName, 0, 10);
+			return findByLastNameLike(lastName);
 		}
-
-		Pageable pageable = new PageRequest(0, 10, new Sort(Direction.DESC, "id"));
-		return accountRepository.findAll(pageable);
+		return accountRepository.findAll();
 
 	}
 

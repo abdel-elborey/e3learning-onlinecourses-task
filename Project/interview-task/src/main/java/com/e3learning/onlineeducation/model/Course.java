@@ -19,11 +19,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Length.List;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="courses")
@@ -41,9 +39,7 @@ public class Course implements Serializable {
 	@Column(unique = true, nullable = false)
 	private Long id;
 
-	@List({ @Length(min = 1, message = "The field must be at least 1 characters"),
-			@Length(max = 255, message = "The field must be less than 255 characters") })
-	@NotEmpty
+	@Size(min=2, max=255)
 	private String title;
 	
 	@JsonIgnore

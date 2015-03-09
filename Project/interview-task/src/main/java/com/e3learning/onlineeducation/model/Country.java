@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Range;
 
@@ -35,6 +36,7 @@ public class Country implements Serializable{
 	private String code;
 	
 	@NotNull
+	@Size(min=2, max=255)
 	private String name;
 
 	public Integer getId() {

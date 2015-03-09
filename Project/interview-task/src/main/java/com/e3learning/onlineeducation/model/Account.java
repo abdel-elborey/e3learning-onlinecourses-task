@@ -22,13 +22,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.Length.List;
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name = "accounts")
@@ -41,30 +40,26 @@ public class Account implements Serializable{
 	@Column(unique = true, nullable = false)
 	private Long id;
 	
-	@List({ @Length(min = 1, message = "The field must be at least 1 characters"),
-			@Length(max = 255, message = "The field must be less than 255 characters") })
-	@NotEmpty
+	@Size(min=2, max=255)
 	private String firstName;
 	
-	@List({ @Length(min = 1, message = "The field must be at least 1 characters"),
-			@Length(max = 255, message = "The field must be less than 255 characters") })
-	@NotEmpty
+	@Size(min=2, max=255)
 	private String lastName;
-	
-	@List({ @Length(min = 1, message = "The field must be at least 1 characters"),
-			@Length(max = 255, message = "The field must be less than 255 characters") })
-	@NotEmpty
+	 
+	@Size(min=2, max=255)
 	@Email
 	private String email;
 
 	@Enumerated(EnumType.ORDINAL)
-	private AccountStatus status = AccountStatus.NONACTIVE;
+	private AccountStatus status = AccountStatus.INACTIVE;
 	
 	@JsonIgnore
+	@Valid
 	@NotNull
 	@OneToOne
 	@JoinColumn(name="address_id")
 	private Address address;
+	
 	
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "account")

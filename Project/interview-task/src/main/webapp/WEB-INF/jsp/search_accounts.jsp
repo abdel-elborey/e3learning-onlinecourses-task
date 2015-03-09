@@ -4,11 +4,11 @@
 <html data-ng-app="myApp">
 <head lang="en">
 <meta charset="utf-8">
-<title>Search Accounts seko1</title>
+<title>Search Accounts</title>
 
 <link rel="stylesheet" type="text/css" href="css/ng-grid.css" />
 <script src="js/jquery.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script src="js/angular.min.js"></script>
 <script type="text/javascript" src="js/ng-grid.debug.js"></script>
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 
@@ -173,7 +173,7 @@
 							</tr>
 						</table>
 					</td>
-					<td> select course to enrol </td>
+					<td> select course to enroll </td>
 					<td>
 						<select ng-model="selectedCourse"
 							ng-options="course.id as course.title for course in eligibleCourses">

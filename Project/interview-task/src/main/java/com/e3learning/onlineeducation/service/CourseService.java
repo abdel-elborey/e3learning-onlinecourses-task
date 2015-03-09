@@ -12,7 +12,7 @@ public interface CourseService {
 	
 	Course saveCourse(Course course);
 
-	Page<Course> findAll(int i, int j);
+	List<Course> findAll();
 
 	Page<Course> findByTitleLike(String title, int page, int size);
 

@@ -1,8 +1,11 @@
 package com.e3learning.onlineeducation.service;
+ 
+import java.util.Date;
 
 import org.springframework.data.domain.Page;
 
 import com.e3learning.onlineeducation.model.Account;
+import com.e3learning.onlineeducation.model.Course;
 import com.e3learning.onlineeducation.model.Training;
 import com.e3learning.onlineeducation.model.TrainingPK;
 
@@ -14,11 +17,13 @@ public interface TrainingService {
 	Page<Training> findByAccount(Account account, int page, int size);
 	
 	Training findById(TrainingPK trainingPK);
+	
+	Training enrollAccountInCourse(Account account, Course course, Date startDate);
 
-	// This method can be called when training is finished to set the training
-	// date and the acquired grade
 	Training update(Training training);
 
 	void deleteById(TrainingPK trainingPK);
+	
+	Training finishTraining(TrainingPK trainingPK, Date finishDate,Integer grade );
 	
 }
