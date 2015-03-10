@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.e3learning.onlineeducation.model.Account;
 import com.e3learning.onlineeducation.model.Course;
 import com.e3learning.onlineeducation.service.CourseService;
+import com.e3learning.onlineeducation.validator.CourseValidator;
  
 @Controller 
 public class CourseController {
@@ -26,6 +27,9 @@ public class CourseController {
 	
 	@Autowired
 	private CourseService courseService;
+	
+	@Autowired
+	private CourseValidator courseValidator;
 	
 	
 	@RequestMapping(value = "/getEligibleForAccount/{accountId}" , method=RequestMethod.GET)
@@ -48,11 +52,20 @@ public class CourseController {
 	public String addAccount(Model model,@Valid @ModelAttribute Course course, BindingResult result){
 
 		String retunPage = "index";
+		courseValidator.validate(course,result);		
 		if(result.hasErrors()){
 			retunPage = "add_course";			
 		}else{
-			courseService.saveCourse(course);
-			model.addAttribute("message", "Course was Created Successfully");
+			try{
+				courseService.saveCourse(course);
+				model.addAttribute("message", "Course was Created Successfully");
+			} catch(Throwable th){
+				if(th.getMessage().contains("Duplicate")){					
+					courseValidator.validate(course,result);
+					retunPage = "add_course";	
+				}
+				model.addAttribute("message","<font style='color: #ff0000;'>Operation Failed Please Contact administrator or try again later</font>");
+			}
 		}
 		return retunPage;
 	}

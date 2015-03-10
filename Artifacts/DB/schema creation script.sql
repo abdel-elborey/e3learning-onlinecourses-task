@@ -70,7 +70,9 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `e3Learning`.`Courses` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`))
+  `description` VARCHAR(1024) NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `title_UNIQUE` (`title` ASC))
 ENGINE = InnoDB;
 
 

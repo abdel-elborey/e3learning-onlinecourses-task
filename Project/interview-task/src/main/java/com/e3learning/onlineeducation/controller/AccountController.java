@@ -141,8 +141,12 @@ public class AccountController {
 					training.setCourse(course);
 				}
 			}
-			accountService.saveAccount(account);
-			model.addAttribute("message", "Account was Created Successfully");
+			try{
+				accountService.saveAccount(account);
+				model.addAttribute("message", "Account was Created Successfully");
+			}catch(Throwable th){
+				model.addAttribute("message","<font style='color: #ff0000;'>Operation Failed Please Contact administrator or try again later</font>");
+			}
 		}
 		return retunPage;
 	}

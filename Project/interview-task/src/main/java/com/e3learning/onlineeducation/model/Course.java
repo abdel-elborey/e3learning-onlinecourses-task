@@ -21,7 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="courses")
@@ -39,8 +39,12 @@ public class Course implements Serializable {
 	@Column(unique = true, nullable = false)
 	private Long id;
 
+	@Column(unique=true)
 	@Size(min=2, max=255)
 	private String title;
+	
+	@Size(max=1024)
+	private String description;
 	
 	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade=CascadeType.ALL)
@@ -69,6 +73,15 @@ public class Course implements Serializable {
 	public void setTraining(java.util.List<Training> training) {
 		this.training = training;
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	
 	
 }

@@ -1,0 +1,17 @@
+<subsystem xmlns="urn:jboss:domain:datasources:2.0">
+            <datasources>
+                <datasource jndi-name="java:jboss/datasources/e3LearningDS" pool-name="wflydevelopment" enabled="true" use-java-context="true">
+                    <connection-url>jdbc:mysql://localhost:3306/e3Learning</connection-url>
+                    <driver>mysql</driver>
+                    <security>
+                        <user-name>root</user-name>
+                        <password>password</password>
+                    </security>
+                </datasource>
+                <drivers>                
+                    <driver name="mysql" module="org.mysql">
+                        <xa-datasource-class>com.mysql.jdbc.Driver</xa-datasource-class>
+                    </driver>
+                </drivers>
+            </datasources>
+</subsystem>
