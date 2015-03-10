@@ -31,47 +31,30 @@
 					'MyController',
 					function($scope, $http) {
 						$scope.showCourseDetails = false;
+						$scope.disableEnroll = true;
 						$scope.loadUserDetails = function(userId) {
 							$http({
 								method : 'GET',
 								url : 'getMyCourses/' + userId
-							})
-									.success(
-											function(dataBasket, status,
-													headers, config) {
-												$scope.myCourses = dataBasket;
-											})
-									.error(
-											function(data, status, headers,
-													config) {
-												// called asynchronously if an error occurs show here
-												alert("error getting mycourses "
-														+ data
-														+ ":"
-														+ status
-														+ ":" + headers);
-											});
+							}).success(function(dataBasket, status, headers, config) {
+								$scope.myCourses = dataBasket;
+							}).error(function(data, status, headers, config) {
+								// called asynchronously if an error occurs show here
+								alert("error getting mycourses " + data + ":" + status + ":" + headers);
+							});
 							$http({
 								method : 'GET',
 								url : 'getEligibleForAccount/' + userId
-							})
-									.success(
-											function(dataBasket, status,
-													headers, config) {
-												$scope.eligibleCourses = dataBasket;
-												if ($scope.eligibleCourses.length > 0)
-													$scope.selectedCourse = dataBasket[0].id;
-											})
-									.error(
-											function(data, status, headers,
-													config) {
-												// called asynchronously if an error occurs show here
-												alert("error getting eligible for courses "
-														+ data
-														+ ":"
-														+ status
-														+ ":" + headers);
-											});
+							}).success(function(dataBasket, status, headers, config) {
+								$scope.eligibleCourses = dataBasket;
+								if ($scope.eligibleCourses.length > 0){
+									$scope.selectedCourse = dataBasket[0].id;
+									$scope.disableEnroll = false;
+								}
+							}).error(function(data, status, headers, config) {
+								// called asynchronously if an error occurs show here
+								alert("error getting eligible for courses " + data + ":" + status + ":" + headers);
+							});
 						}
 						$scope.onMainGridRowSelect = function(row) {
 							var selectedId = $scope.myData[row.rowIndex].id;
@@ -83,10 +66,8 @@
 						};
 						$scope.populateGridData = function() {
 							$scope.showCourseDetails = false;
-							var searchFirstName = angular.element(
-									document.querySelector('#firstName')).val();
-							var searchLastName = angular.element(
-									document.querySelector('#lastName')).val();
+							var searchFirstName = angular.element(document.querySelector('#firstName')).val();
+							var searchLastName = angular.element(document.querySelector('#lastName')).val();
 
 							var dataObj = {
 								firstName : searchFirstName,
@@ -95,44 +76,30 @@
 
 							//var data = escape(angular.toJson({'firstName': searchFirstName , 'lastName': searchLastName}));
 
-							$http
-									.post('searchAccounts', dataObj)
-									.success(
-											function(dataBasket, status,
-													headers, config) {
-												$scope.myData = dataBasket;
+							$http.post('searchAccounts', dataObj).success(
+									function(dataBasket, status, headers, config) {
+										$scope.myData = dataBasket;
 
-											})
-									.error(
-											function(data, status, headers,
-													config) {
-												// called asynchronously if an error occurs show here
-												alert("error searching for users error details:  "
-														+ data);
-											});
+									}).error(function(data, status, headers, config) {
+								// called asynchronously if an error occurs show here
+								alert("error searching for users error details:  " + data);
+							});
 						};
 
 						$scope.enrolUserInCourse = function() {
 							if ($scope.eligibleCourses.length > 0) {
+								$scope.disableEnroll = true;
 								var postDataObj = {
 									accountId : $scope.userId,
 									courseId : $scope.selectedCourse
 								};
 
-								$http
-										.post('enrollUserInCourse', postDataObj)
-										.success(
-												function(dataBasket, status,
-														headers, config) {
-													$scope
-															.loadUserDetails($scope.userId);
-
-												}).error(
-												function(data, status, headers,
-														config) {
-													// called asynchronously if an error occurs show here
-													alert("error " + data);
-												});
+								$http.post('enrollUserInCourse', postDataObj).success(
+										function(dataBasket, status, headers, config) {
+											$scope.loadUserDetails($scope.userId);
+										}).error(function(data, status, headers, config) {
+									alert("error " + data);
+								});
 							} else {
 								alert('There are no courses to enroll in for that user');
 							}
@@ -215,7 +182,7 @@
 												<h2>
 													<fmt:message key="search.currentcourses" />
 												</h2>
-											</td> 
+											</td>
 										</tr>
 										<tr>
 											<td>
@@ -225,17 +192,18 @@
 										</tr>
 									</table>
 								</td>
-								<td width="50%" style="padding: 20px; "> 
+								<td width="50%" style="padding: 20px;">
 									<h2>
 										<fmt:message key="search.selectcoursestoenroll" />
 									</h2>
 								</td>
-								<td  ><select ng-model="selectedCourse"
+								<td><select ng-model="selectedCourse"
 									ng-options="course.id as course.title for course in eligibleCourses">
 								</select></td>
-								<td  ><input type="button"
+								<td><input type="button"
 									value='<fmt:message key="search.enroll" />'
-									data-ng-click="enrolUserInCourse()" data-ng-disabled="eligibleCourses.length == 0" /></td>
+									data-ng-click="enrolUserInCourse()"
+									data-ng-disabled="disableEnroll" /></td>
 						</table>
 
 					</div>

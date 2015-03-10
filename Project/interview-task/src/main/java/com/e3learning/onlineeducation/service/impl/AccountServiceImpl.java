@@ -25,6 +25,13 @@ public class AccountServiceImpl implements AccountService {
 	
 	@Autowired
 	private TrainingService trainingService;
+	
+	public AccountServiceImpl(){
+		
+	}
+	public AccountServiceImpl(AccountRepository accountRepository){
+		this.accountRepository = accountRepository;
+	}
 
 	@Override
 	@Transactional

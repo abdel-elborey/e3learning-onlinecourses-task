@@ -1,6 +1,7 @@
 package com.e3learning.onlineeducation.repository;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
@@ -11,19 +12,21 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.e3learning.onlineeducation.IntegrationTest;
 import com.e3learning.onlineeducation.model.Account;
 import com.e3learning.onlineeducation.model.AccountStatus;
 import com.e3learning.onlineeducation.model.Address;
-import static org.junit.Assert.*;
 
 @Category(IntegrationTest.class)
 @ContextConfiguration(locations = "classpath:testContext.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-public class AccountRepositoryIT {
+@TransactionConfiguration(defaultRollback = true)
+
+public class AccountRepositoryIT { 
 
 	@Autowired
 	AccountRepository accountRepository;
@@ -36,7 +39,6 @@ public class AccountRepositoryIT {
 	
 	@Before
 	public void setUp() {
-		accountRepository.deleteAll();
 		for (int i = 1; i <= 20; i++) {
 			Account account = new Account();
 			
@@ -55,11 +57,6 @@ public class AccountRepositoryIT {
 			accountRepository.save(account);
 		}
 		accountRepository.flush();
-	}
-
-	@Test
-	public void testCount() {
-		assertEquals(20, accountRepository.count());
 	}
 
 	@Test

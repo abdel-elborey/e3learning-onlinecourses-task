@@ -1,8 +1,8 @@
 package com.e3learning.onlineeducation.repository;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -10,20 +10,25 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.e3learning.onlineeducation.IntegrationTest;
 import com.e3learning.onlineeducation.model.Account;
 import com.e3learning.onlineeducation.model.AccountStatus;
 import com.e3learning.onlineeducation.model.Address;
-import com.e3learning.onlineeducation.service.TrainingService;
+import com.e3learning.onlineeducation.model.Course;
+import com.e3learning.onlineeducation.model.Training;
 
 @Category(IntegrationTest.class)
 @ContextConfiguration(locations = "classpath:testContext.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
+@TransactionConfiguration(defaultRollback = true)
 public class TrainingRepositoryIT {
 
 	@Autowired
@@ -31,16 +36,18 @@ public class TrainingRepositoryIT {
 	
 	@Autowired
 	AddressRepository addressRepository;
-
+	
 	@Autowired
 	CountryRepository countryRepository;
 	
 	@Autowired
-	TrainingService trainingService;
+	TrainingRepository trainingRepository;
+	
+	@Autowired
+	CourseRepository courseRepository;
 	
 	@Before
 	public void setUp() {
-		accountRepository.deleteAll();
 		for (int i = 1; i <= 20; i++) {
 			Account account = new Account();
 			
@@ -53,36 +60,33 @@ public class TrainingRepositoryIT {
 			
 			account.setAddress(address);
 			account.setEmail("email@domain.com");
-			account.setFirstName("firstName" + i);
+			account.setFirstName("firstName" + i );
 			account.setLastName("lastName" + i);
 			account.setStatus(AccountStatus.ACTIVE);
-			accountRepository.save(account);
+			account = accountRepository.save(account);
+			
+			Course course = new Course();
+			course.setTitle("newcourse" + i);
+			course = courseRepository.save(course);
+			
+			Training training = new Training();
+			training.setAccount(account);
+			training.setCourse(course);
+			training.setStartDate(new Date());
+			training = trainingRepository.save(training);
 		}
 		accountRepository.flush();
 	}
 
 	@Test
-	public void testCount() {
-		assertEquals(20, accountRepository.count());
-	}
-
-	@Test
-	public void testFindByFirstName() {
-		List <Account> account = accountRepository.findByFirstNameLike("%firstName1%");
-		assertNotNull(account);
-		assertEquals(11, account.size());
+	public void testFindByAccount() {
+		for (int i = 1; i <= 20; i++) {
+			List<Account> account = accountRepository.findByFirstNameLike("firstName" + i);
+			Page<Training> trainings = trainingRepository.findByAccount(account.get(0), new PageRequest(0, 5));
+			assertEquals(1,trainings.getContent().size());
+			assertEquals(trainings.getContent().get(0).getCourse().getTitle(),"newcourse" + i);
+		}
 	}
 	
-	@Test
-	public void testFindByLastName() {
-		List<Account> account = accountRepository.findByLastNameLike("%lastName1%");
-		assertNotNull(account);
-		assertEquals(11, account.size());
-	}
-	@Test
-	public void testFindByFirstAndLastName() {
-		List<Account> account = accountRepository.findByFirstNameAndLastNameLike("%firstName1%","%lastName1%");
-		assertNotNull(account);
-		assertEquals(11, account.size());
-	}
+	
 }

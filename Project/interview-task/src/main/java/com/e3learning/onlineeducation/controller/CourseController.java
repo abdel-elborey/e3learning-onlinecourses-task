@@ -34,10 +34,16 @@ public class CourseController {
 	
 	@RequestMapping(value = "/getEligibleForAccount/{accountId}" , method=RequestMethod.GET)
 	public @ResponseBody List<Course> getEligibleForAccount(@PathVariable String accountId) {	
-		Account account = new Account();
-		account.setId(Long.valueOf(accountId));
-		List<Course> courses = courseService.findEligibleForAccount(account);
-		logger.info("Eligible courses for user " + accountId + " are " + courses);
+		List<Course> courses = null;
+		try {
+			Account account = new Account();
+			account.setId(Long.valueOf(accountId));
+			courses = courseService.findEligibleForAccount(account);
+			logger.info("Eligible courses for user " + accountId + " are " + courses);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+		}
 		return courses;
 	}
 	
@@ -59,11 +65,13 @@ public class CourseController {
 			try{
 				courseService.saveCourse(course);
 				model.addAttribute("message", "Course was Created Successfully");
-			} catch(Throwable th){
-				if(th.getMessage().contains("Duplicate")){					
+			} catch(Exception exception){
+				if(exception.getMessage().contains("Duplicate")){					
 					courseValidator.validate(course,result);
 					retunPage = "add_course";	
 				}
+				exception.printStackTrace();
+				logger.error(exception.getMessage());
 				model.addAttribute("message","<font style='color: #ff0000;'>Operation Failed Please Contact administrator or try again later</font>");
 			}
 		}

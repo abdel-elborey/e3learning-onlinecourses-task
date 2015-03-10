@@ -1,13 +1,13 @@
 package com.e3learning.onlineeducation.repository;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.e3learning.onlineeducation.IntegrationTest;
@@ -29,6 +30,7 @@ import com.e3learning.onlineeducation.model.Training;
 @ContextConfiguration(locations = "classpath:testContext.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
+@TransactionConfiguration(defaultRollback = true)
 public class CourseRepositoryIT {
 
 	@Autowired
@@ -48,7 +50,6 @@ public class CourseRepositoryIT {
 	
 	@Before
 	public void setUp() {
-		courseRepository.deleteAll();
 		for (int i = 1; i <= 20; i++) {
 			Course course = new Course();
 			course.setTitle("TestCourse" + i);
@@ -56,11 +57,6 @@ public class CourseRepositoryIT {
 		}
 		
 		courseRepository.flush();
-	}
-
-	@Test
-	public void testCount() {
-		assertEquals(20, courseRepository.count());
 	}
 
 	@Test
@@ -75,7 +71,6 @@ public class CourseRepositoryIT {
         assertEquals(11, courses.getTotalElements());
 	}
 
-	@Ignore
 	@Test 
 	public void testFindEligibleForAccount(){
 		Account account = new Account();
@@ -94,24 +89,24 @@ public class CourseRepositoryIT {
 		account.setStatus(AccountStatus.ACTIVE);
 		account = accountRepository.save(account);
 		
-		Course course = new Course();
-		course.setTitle("Non Eligible course");
-		course = courseRepository.save(course);
-		
+		Course nonEligibleCourse = new Course();
+		nonEligibleCourse.setTitle("Non Eligible course");
+		nonEligibleCourse = courseRepository.save(nonEligibleCourse);
 		
 		Training training = new Training();
 		training.setAccount(account);
-		training.setCourse(course);
+		training.setCourse(nonEligibleCourse);
 		training.setStartDate(new Date());
 		training = trainingRepository.save(training);
-		System.out.println("seko" + training.getTrainingPK().getCourseId() + ":" + training.getTrainingPK().getAccountId());
+
 		
-		List<Course> eligibleCourses = courseRepository.findEligibleForAccount(account.getId());
-		System.out.println(eligibleCourses.size());
-		for(Course courze : eligibleCourses){
-			System.out.println(courze.getTitle());
+		Page<Training> trainings = trainingRepository.findByAccount(account, new PageRequest(0, 5));
+		assertEquals(1,trainings.getContent().size());
+		
+		List<Course> eligibleCourses = courseRepository.findEligibleForAccount(account.getId());		
+		for(Course c : eligibleCourses){
+			assertNotEquals(nonEligibleCourse.getTitle(), c.getTitle());
 		}
-		assertEquals(20,eligibleCourses.size());
 		
 	}
 	

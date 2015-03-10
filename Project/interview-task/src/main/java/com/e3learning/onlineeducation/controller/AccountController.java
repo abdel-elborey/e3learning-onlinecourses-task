@@ -59,55 +59,82 @@ public class AccountController {
 	@RequestMapping(value = "/searchAccounts", method=RequestMethod.GET)
 	public String gotoSearch() {
 		return "search_accounts";		
-	}
+	} 
 		
 	@RequestMapping(value = "/searchAccounts", method=RequestMethod.POST)
 	public @ResponseBody List<Account> searchAccounts(@RequestBody AccountSearchForm accountSearch) {
-		List<Account> accounts = accountService.searchAccounts(accountSearch);
-		logger.info("searchAccounts result is " + accounts);
+		List<Account> accounts = null;
+		try {
+			accounts = accountService.searchAccounts(accountSearch);
+			logger.info("searchAccounts result is " + accounts);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
 		return accounts;		
 	}
 	
 	
 	@RequestMapping(value = "/getMyCourses/{accountId}", method=RequestMethod.GET)
 	public @ResponseBody List<Training> getMyCourses(@PathVariable String accountId) {	
-		Account account = new Account();
-		account.setId(Long.valueOf(accountId));
-		List<Training> trainings = trainingService.findByAccount(account, 0, 10).getContent();
+		List<Training> trainings = null;
+		try {
+			Account account = new Account();
+			account.setId(Long.valueOf(accountId));
+			trainings = trainingService.findByAccount(account, 0, 10).getContent();
+		} catch (NumberFormatException e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
 		return trainings;
 	}
 	
 
 	@RequestMapping(value = "/enrollUserInCourse" , method=RequestMethod.POST)
 	public @ResponseBody Training enrolUserInCourse(@RequestBody EnrollInCourseForm enrollInCourseForm) {		
-		Account account = accountService.findById(enrollInCourseForm.getAccountId());
-		Course course = courseService.findById(enrollInCourseForm.getCourseId());			
-		return trainingService.enrollAccountInCourse(account, course, new Date());
+		Training training = null;
+		try {
+			Account account = accountService.findById(enrollInCourseForm.getAccountId());
+			Course course = courseService.findById(enrollInCourseForm.getCourseId());			
+			training = trainingService.enrollAccountInCourse(account, course, new Date());
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return training; 
 	}
 	
 	@RequestMapping(value = "/accounts" , method=RequestMethod.GET)
 	public String addAccountForm(Model model, HttpServletRequest request) {
-		Account account = new Account();
-		model.addAttribute("account", account);
-		
-		List<Course> courses = courseService.findAll();
-		List<Training> availableTraining = new ArrayList<Training>();
-		trainingCache = new HashMap<String,Training>();
-		for(Course course : courses){
-			Training training = new Training();
-			TrainingPK trainingPK = new TrainingPK();
-			trainingPK.setCourseId(course.getId());
-			training.setCourse(course);
-			training.setTrainingPK(trainingPK);
-			availableTraining.add(training);
-			trainingCache.put(training.getCourse().getId().toString(), training);
+		String target = "add_account";
+		try {
+			Account account = new Account();
+			model.addAttribute("account", account);
+			
+			List<Course> courses = courseService.findAll();
+			List<Training> availableTraining = new ArrayList<Training>();
+			trainingCache = new HashMap<String,Training>();
+			for(Course course : courses){
+				Training training = new Training();
+				TrainingPK trainingPK = new TrainingPK();
+				trainingPK.setCourseId(course.getId());
+				training.setCourse(course);
+				training.setTrainingPK(trainingPK);
+				availableTraining.add(training);
+				trainingCache.put(training.getCourse().getId().toString(), training);
+			}
+			request.getSession().setAttribute("availableTraining", availableTraining);
+			
+			if(request.getSession().getAttribute("countries") == null)
+				request.getSession().setAttribute("countries", countryService.findAll());
+		}catch(Exception exception){
+			logger.error(exception.getMessage());
+			exception.printStackTrace();
+			model.addAttribute("message","<font style='color: #ff0000;'>Operation Failed Please Contact administrator or try again later</font>");
+			target = "index";
 		}
-		request.getSession().setAttribute("availableTraining", availableTraining);
 		
-		if(request.getSession().getAttribute("countries") == null)
-			request.getSession().setAttribute("countries", countryService.findAll());
-		
-		return "add_account";		
+		return target;		
 	}
 	
 	@InitBinder
@@ -134,17 +161,19 @@ public class AccountController {
 		if(result.hasErrors()){	
 			retunPage = "add_account";
 		}else{
-			if(account.getTraining() != null){
-				for (Training training : account.getTraining()) {
-					Course course = courseService.findById(training.getCourse().getId());
-					training.setStartDate(new Date());
-					training.setCourse(course);
-				}
-			}
 			try{
+				if(account.getTraining() != null){
+					for (Training training : account.getTraining()) {
+						Course course = courseService.findById(training.getCourse().getId());
+						training.setStartDate(new Date());
+						training.setCourse(course);
+					}
+				}
 				accountService.saveAccount(account);
 				model.addAttribute("message", "Account was Created Successfully");
-			}catch(Throwable th){
+			}catch(Exception exception){
+				exception.printStackTrace();
+				logger.error(exception.getMessage());
 				model.addAttribute("message","<font style='color: #ff0000;'>Operation Failed Please Contact administrator or try again later</font>");
 			}
 		}
