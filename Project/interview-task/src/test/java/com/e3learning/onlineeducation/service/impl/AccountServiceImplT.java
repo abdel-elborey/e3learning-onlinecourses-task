@@ -21,7 +21,6 @@ import com.e3learning.onlineeducation.IntegrationTest;
 import com.e3learning.onlineeducation.model.Account;
 import com.e3learning.onlineeducation.model.AccountStatus;
 import com.e3learning.onlineeducation.model.Address;
-import com.e3learning.onlineeducation.repository.AccountRepository;
 import com.e3learning.onlineeducation.service.AccountService;
 import com.e3learning.onlineeducation.service.CountryService;
 
@@ -32,10 +31,6 @@ import com.e3learning.onlineeducation.service.CountryService;
 @TransactionConfiguration(defaultRollback = true)
 
 public class AccountServiceImplT {
-
-
-	@Autowired
-	AccountRepository accountRepository;
 
 	@Autowired
 	AccountService accountService;
@@ -62,7 +57,6 @@ public class AccountServiceImplT {
 
 			accountService.saveAccount(account);
 		}
-		accountRepository.flush();
 	}
 
 	@After
@@ -96,7 +90,6 @@ public class AccountServiceImplT {
 		account.setStatus(AccountStatus.ACTIVE);
 
 		Account result = accountService.saveAccount(account);
-		accountRepository.flush();
 		Account check = accountService.findById(result.getId());
 		assertNotNull(check);
 	}
@@ -114,7 +107,6 @@ public class AccountServiceImplT {
 	public void testDeleteById() {
 		Account lastOne = accountService.findByFirstNameAndLastName("firstName1", "lastName1").get(0);
 		accountService.deleteById(lastOne.getId());
-		accountRepository.flush();
 		Account account = accountService.findById(lastOne.getId());
 		assertNull(account);
 	}
