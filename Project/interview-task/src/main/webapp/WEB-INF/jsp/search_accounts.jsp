@@ -32,29 +32,23 @@
 					function($scope, $http) {
 						$scope.showCourseDetails = false;
 						$scope.disableEnroll = true;
-						$scope.loadUserDetails = function(userId) {
-							$http({
-								method : 'GET',
-								url : 'getMyCourses/' + userId
-							}).success(function(dataBasket, status, headers, config) {
-								$scope.myCourses = dataBasket;
-							}).error(function(data, status, headers, config) {
-								// called asynchronously if an error occurs show here
-								alert("error getting mycourses " + data + ":" + status + ":" + headers);
-							});
-							$http({
-								method : 'GET',
-								url : 'getEligibleForAccount/' + userId
-							}).success(function(dataBasket, status, headers, config) {
-								$scope.eligibleCourses = dataBasket;
-								if ($scope.eligibleCourses.length > 0){
-									$scope.selectedCourse = dataBasket[0].id;
-									$scope.disableEnroll = false;
-								}
-							}).error(function(data, status, headers, config) {
-								// called asynchronously if an error occurs show here
-								alert("error getting eligible for courses " + data + ":" + status + ":" + headers);
-							});
+						$scope.loadUserDetails = function(userId) {							
+							var dataObj = {
+									accountId : userId
+								};							
+								$http.post('getMyDetails', dataObj).success(
+								function(dataBasket, status, headers, config) {
+									$scope.eligibleCourses = dataBasket.courses;
+									$scope.myCourses = dataBasket.training;	
+									//alert($scope.eligibleCourses.length);
+									if ($scope.eligibleCourses.length > 0){
+										$scope.selectedCourse = $scope.eligibleCourses[0].id;
+										$scope.disableEnroll = false;
+									}
+								}).error(function(data, status, headers, config) {
+									// called asynchronously if an error occurs show here
+									alert("error getting mycourses " + data + ":" + status + ":" + headers);
+								});							
 						}
 						$scope.onMainGridRowSelect = function(row) {
 							var selectedId = $scope.myData[row.rowIndex].id;
@@ -95,7 +89,7 @@
 								};
 
 								$http.post('enrollUserInCourse', postDataObj).success(
-										function(dataBasket, status, headers, config) {
+										function(dataBasket, status, headers, config) {												
 											$scope.loadUserDetails($scope.userId);
 										}).error(function(data, status, headers, config) {
 									alert("error " + data);

@@ -12,7 +12,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.e3learning.onlineeducation.IntegrationTest;
+import testsuits.IntegrationTest;
+
 import com.e3learning.onlineeducation.model.Address;
 import com.e3learning.onlineeducation.model.Country;
 

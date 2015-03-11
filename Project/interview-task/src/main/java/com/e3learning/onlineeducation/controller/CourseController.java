@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,6 +19,7 @@ import com.e3learning.onlineeducation.model.Account;
 import com.e3learning.onlineeducation.model.Course;
 import com.e3learning.onlineeducation.service.CourseService;
 import com.e3learning.onlineeducation.validator.CourseValidator;
+import com.e3learning.onlineeducation.vo.AccountDetailsForm;
  
 @Controller 
 public class CourseController {
@@ -32,14 +33,14 @@ public class CourseController {
 	private CourseValidator courseValidator;
 	
 	
-	@RequestMapping(value = "/getEligibleForAccount/{accountId}" , method=RequestMethod.GET)
-	public @ResponseBody List<Course> getEligibleForAccount(@PathVariable String accountId) {	
+	@RequestMapping(value = "/getEligibleForAccount" , method=RequestMethod.POST)
+	public @ResponseBody List<Course> getEligibleForAccount(@RequestBody AccountDetailsForm accountDetailsForm) {	
 		List<Course> courses = null;
 		try {
 			Account account = new Account();
-			account.setId(Long.valueOf(accountId));
+			account.setId(Long.valueOf(accountDetailsForm.getAccountId()));
 			courses = courseService.findEligibleForAccount(account);
-			logger.info("Eligible courses for user " + accountId + " are " + courses);
+			logger.info("Eligible courses for user " + accountDetailsForm.getAccountId() + " are " + courses);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());

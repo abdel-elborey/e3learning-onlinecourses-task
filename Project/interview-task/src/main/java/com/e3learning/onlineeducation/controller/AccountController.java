@@ -18,7 +18,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +31,8 @@ import com.e3learning.onlineeducation.service.AccountService;
 import com.e3learning.onlineeducation.service.CountryService;
 import com.e3learning.onlineeducation.service.CourseService;
 import com.e3learning.onlineeducation.service.TrainingService;
+import com.e3learning.onlineeducation.vo.AccountDetailsForm;
+import com.e3learning.onlineeducation.vo.AccountDetailsVO;
 import com.e3learning.onlineeducation.vo.AccountSearchForm;
 import com.e3learning.onlineeducation.vo.EnrollInCourseForm;
  
@@ -74,13 +75,34 @@ public class AccountController {
 		return accounts;		
 	}
 	
+	@RequestMapping(value = "/getMyDetails", method=RequestMethod.POST)
+	public @ResponseBody AccountDetailsVO getMyDetails(@RequestBody AccountDetailsForm accountDetailsForm) {
+		Long accountID = Long.valueOf(accountDetailsForm.getAccountId());
+		return getUserDetails(accountID);
+	}
+
+	private AccountDetailsVO getUserDetails(Long accountID) {
+		AccountDetailsVO accountDetails = new AccountDetailsVO();
+		try {
+			Account account = new Account();
+			account.setId(accountID);
+			List<Training> trainings = trainingService.findByAccount(account, 0, 100).getContent();
+			List<Course>courses = courseService.findEligibleForAccount(account);			
+			accountDetails.setCourses(courses);
+			accountDetails.setTraining(trainings);
+		} catch (NumberFormatException e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return accountDetails;
+	}
 	
-	@RequestMapping(value = "/getMyCourses/{accountId}", method=RequestMethod.GET)
-	public @ResponseBody List<Training> getMyCourses(@PathVariable String accountId) {	
+	@RequestMapping(value = "/getMyCourses", method=RequestMethod.POST)
+	public @ResponseBody List<Training> getMyCourses(@RequestBody AccountDetailsForm accountDetailsForm) {	
 		List<Training> trainings = null;
 		try {
 			Account account = new Account();
-			account.setId(Long.valueOf(accountId));
+			account.setId(Long.valueOf(accountDetailsForm.getAccountId()));
 			trainings = trainingService.findByAccount(account, 0, 10).getContent();
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
@@ -91,7 +113,7 @@ public class AccountController {
 	
 
 	@RequestMapping(value = "/enrollUserInCourse" , method=RequestMethod.POST)
-	public @ResponseBody Training enrolUserInCourse(@RequestBody EnrollInCourseForm enrollInCourseForm) {		
+	public @ResponseBody Training enrolUserInCourse(@RequestBody EnrollInCourseForm enrollInCourseForm) {	
 		Training training = null;
 		try {
 			Account account = accountService.findById(enrollInCourseForm.getAccountId());
